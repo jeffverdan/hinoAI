@@ -2,7 +2,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { WaveBars }       from '@/components/ui/WaveBars';
-import { ScriptureQuote } from '@/components/ui/ScriptureQuote';
 
 const STAGES = [
   'Interpretando seu testemunho…',
@@ -90,17 +89,6 @@ export function GeneratingStep({ progress, phase = 'lyrics', preview = null }: G
 
       {/* Prévia do que a Claude já gerou */}
       {showPreview && preview && <PreviewCard preview={preview} />}
-
-      {!showPreview && (
-        <div style={{ paddingTop: 8 }}>
-          {/* <ScriptureQuote
-            verse="Cantai ao Senhor um cântico novo."
-            reference="Salmos 96:1"
-            size="sm"
-            align="center"
-          /> */}
-        </div>
-      )}
     </div>
   );
 }
