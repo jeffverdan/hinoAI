@@ -1,19 +1,42 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl  = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// Lazy singleton — o cliente só é criado quando realmente chamado em runtime,
+// não no momento da importação do módulo (evita crash no build do Next.js quando
+// as env vars ainda não estão disponíveis).
+let _client: SupabaseClient | null = null;
 
-// Client-side Supabase (anon key)
-export const supabase = createClient(supabaseUrl, supabaseAnon);
+export function getSupabaseClient(): SupabaseClient {
+  if (_client) return _client;
 
-// Server-side Supabase (service role — use only in API routes)
-export function createServerClient() {
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!serviceKey) {
-    // Fallback to anon key in dev if service key is not set
-    return createClient(supabaseUrl, supabaseAnon);
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !key) {
+    throw new Error(
+      '[Supabase] Env vars ausentes: NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY são obrigatórias.',
+    );
   }
-  return createClient(supabaseUrl, serviceKey);
+
+  _client = createClient(url, key);
+  return _client;
+}
+
+// Alias — mantém compatibilidade com código que importava `supabase` diretamente
+export const supabase = new Proxy({} as SupabaseClient, {
+  get(_target, prop) {
+    return (getSupabaseClient() as unknown as Record<string | symbol, unknown>)[prop];
+  },
+});
+
+// Server-side client (service role — usar apenas em API routes)
+export function createServerClient(): SupabaseClient {
+  const url        = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const anonKey    = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url) throw new Error('[Supabase] NEXT_PUBLIC_SUPABASE_URL não configurada.');
+
+  return createClient(url, serviceKey ?? anonKey ?? '');
 }
 
 // Types
