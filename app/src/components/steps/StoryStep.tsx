@@ -28,7 +28,7 @@ export function StoryStep({ story, setStory, themes, toggleTheme, onNext }: Stor
           Conte sua história
         </h1>
         <p style={{ fontSize: 17, lineHeight: 1.55, color: 'var(--text-muted)', margin: 0, maxWidth: 460 }}>
-          Um momento de fé, uma superação, uma graça recebida, um pedido. Nós transformamos em louvor.
+          Um momento de fé, uma graça recebida, um pedido. Nós transformamos em louvor.
         </p>
       </div>
 
@@ -36,7 +36,7 @@ export function StoryStep({ story, setStory, themes, toggleTheme, onNext }: Stor
         
         <Textarea
           label="Conte com suas palavras"
-          placeholder="Ex.: Passei por um momento muito difícil, mas senti a presença de Deus me sustentando e fui renovado pela Sua graça…"
+          placeholder="Ex.: Um momento muito difícil, uma palavra de fé…"
           showCount
           hint='mínimo de 12 caracteres'
           maxLength={600}
@@ -51,7 +51,7 @@ export function StoryStep({ story, setStory, themes, toggleTheme, onNext }: Stor
 
       <div>
         <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-heading)', margin: '0 0 12px' }}>
-          Temas que aparecem na sua história{' '}
+          Temas relacionados à sua história{' '}
           <span style={{ fontWeight: 500, color: 'var(--text-faint)' }}>(opcional)</span>
         </p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
