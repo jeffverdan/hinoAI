@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { buildSunoPrompt } from '@/lib/prompts';
 
-// Suno API wrapper — compatível com o endpoint comunitário mais comum.
-// Ajuste a BASE_URL conforme o provider que você usa (suno.com official ou proxy).
-const SUNO_BASE_URL = 'https://api.sunoaiapi.com/api/v1';
+const SUNO_BASE_URL = 'https://api.sunoapi.org/api/v1';
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,26 +13,26 @@ export async function POST(req: NextRequest) {
     };
 
     if (!process.env.SUNO_API_KEY) {
-      // Retorna URL vazia em dev sem a chave configurada
       return NextResponse.json({ audioUrl: null, message: 'SUNO_API_KEY não configurada.' });
     }
 
-    const prompt = buildSunoPrompt({ title, style, tone });
+    const stylePrompt = buildSunoPrompt({ title, style, tone });
 
     // Dispara geração
-    const genRes = await fetch(`${SUNO_BASE_URL}/gateway/generate/music`, {
-      method:  'POST',
+    const genRes = await fetch(`${SUNO_BASE_URL}/generate`, {
+      method: 'POST',
       headers: {
-        'Content-Type':  'application/json',
-        'api-key':       process.env.SUNO_API_KEY,
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.SUNO_API_KEY}`,
       },
       body: JSON.stringify({
+        customMode:   true,
+        instrumental: false,
+        model:        'V4_5ALL',
         title,
-        tags:         prompt,
-        prompt:       lyrics,
-        mv:           'chirp-v3-5',
-        continue_at:  0,
-        continue_clip_id: '',
+        prompt:       lyrics,   // letra completa
+        style:        stylePrompt,
+        vocalGender:  'f',      // voz feminina — padrão para hinos adventistas
       }),
     });
 
@@ -44,14 +42,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ audioUrl: null, message: 'Erro ao iniciar geração de áudio.' });
     }
 
-    const genData = await genRes.json() as { data?: { song_id: string }[] };
-    const songId = genData?.data?.[0]?.song_id;
+    const genData = await genRes.json() as { data?: { id: string }[] };
+    const songId = genData?.data?.[0]?.id;
 
     if (!songId) {
+      console.error('Suno response sem ID:', JSON.stringify(genData));
       return NextResponse.json({ audioUrl: null, message: 'ID do áudio não retornado.' });
     }
 
-    // Polling — aguarda até 90s para o áudio ficar pronto
+    // Polling — aguarda até 90s
     const audioUrl = await pollSunoStatus(songId);
     return NextResponse.json({ audioUrl });
   } catch (err: unknown) {
@@ -65,17 +64,19 @@ async function pollSunoStatus(songId: string, maxAttempts = 18): Promise<string 
   for (let i = 0; i < maxAttempts; i++) {
     await sleep(5000);
 
-    const res = await fetch(`${SUNO_BASE_URL}/gateway/feed/${songId}`, {
-      headers: { 'api-key': process.env.SUNO_API_KEY! },
+    const res = await fetch(`${SUNO_BASE_URL}/generate/${songId}`, {
+      headers: { 'Authorization': `Bearer ${process.env.SUNO_API_KEY!}` },
     });
 
     if (!res.ok) continue;
 
-    const data = await res.json() as { data?: { status: string; audio_url?: string }[] };
+    const data = await res.json() as {
+      data?: { status: string; audio_url?: string; stream_audio_url?: string }[]
+    };
     const track = data?.data?.[0];
 
-    if (track?.status === 'complete' && track?.audio_url) {
-      return track.audio_url;
+    if (track?.status === 'complete' && (track?.audio_url || track?.stream_audio_url)) {
+      return track.audio_url ?? track.stream_audio_url ?? null;
     }
     if (track?.status === 'error') {
       console.error('Suno track error for', songId);

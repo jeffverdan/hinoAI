@@ -1,0 +1,8 @@
+/* Hino.AI typefaces.
+   No brand binaries existed in the source repo, so these are Google-hosted
+   selections chosen to fit the warm sacred-editorial direction:
+   - Spectral      → editorial serif, reads like scripture (display, verse, lyrics)
+   - Figtree       → warm humanist sans (UI, body)
+   - JetBrains Mono → fixed-width for cifra / chord charts (alignment matters)
+   Swap freely by replacing this import + the --font-* tokens in typography.css. */
+@import url('https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');

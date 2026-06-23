@@ -1,0 +1,52 @@
+<!-- @dsCard group="Components" viewport="700x460" name="Forms — inputs, toggles, options" subtitle="Input · Textarea · Checkbox · Switch · RadioCard" -->
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body{margin:0;font-family:var(--font-sans);background:var(--bg-page);padding:24px;color:var(--text-body);}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start;}
+  .stack{display:flex;flex-direction:column;gap:16px;}
+  .lbl{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint);margin:0 0 4px;}
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { Input, Textarea, Checkbox, Switch, RadioCard } = window.HinoAIDesignSystem_121ee1;
+    function Demo(){
+      const [story,setStory] = React.useState('Perdi meu emprego em 2024, mas Deus abriu uma porta melhor.');
+      const [sty,setSty] = React.useState('trad');
+      const [vid,setVid] = React.useState(true);
+      return (<div class="grid">
+        <div class="stack">
+          <Input label="Nome do hino" required hint="Aparece na capa" defaultValue="Cântico novo" />
+          <Input label="E-mail" icon="mail" type="email" placeholder="voce@igreja.com" />
+          <Input label="Senha" icon="lock" type="password" error="Senha muito curta" defaultValue="123" />
+          <Textarea label="Sua história" showCount maxLength={600} value={story} onChange={e=>setStory(e.target.value)} />
+        </div>
+        <div class="stack">
+          <div>
+            <p class="lbl">Opções de estilo</p>
+            <div class="stack">
+              <RadioCard icon="church" title="Hino tradicional" description="Solene · hinário clássico" selected={sty==='trad'} onClick={()=>setSty('trad')} />
+              <RadioCard icon="user" title="Jovem" description="Contemporâneo · congregacional" selected={sty==='jov'} onClick={()=>setSty('jov')} />
+            </div>
+          </div>
+          <div>
+            <p class="lbl">Preferências</p>
+            <div class="stack">
+              <Switch label="Gerar vídeo para redes" checked={vid} onChange={e=>setVid(e.target.checked)} />
+              <Checkbox label="Incluir cifra para violão" defaultChecked />
+              <Checkbox round name="voz" label="Quarteto" defaultChecked />
+              <Checkbox round name="voz" label="Congregacional" />
+            </div>
+          </div>
+        </div>
+      </div>);
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+  </script>
+</body></html>

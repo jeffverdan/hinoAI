@@ -1,0 +1,42 @@
+/* ============================================================
+   Hino.AI — Effects: radii, borders, shadows, motion
+   Soft, warm, candle-lit. Shadows are warm-tinted (not gray),
+   corners are gently rounded, motion is calm (no bounce).
+   ============================================================ */
+:root {
+  /* radii */
+  --radius-xs:  4px;
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  18px;
+  --radius-xl:  26px;
+  --radius-pill: 999px;
+  --radius-card: var(--radius-lg);
+
+  /* borders */
+  --border-width: 1px;
+  --border-width-strong: 1.5px;
+
+  /* warm-tinted shadows (brown/gold cast, never pure gray) */
+  --shadow-xs: 0 1px 2px rgba(54, 42, 20, 0.06);
+  --shadow-sm: 0 2px 6px rgba(54, 42, 20, 0.07), 0 1px 2px rgba(54, 42, 20, 0.05);
+  --shadow-md: 0 6px 18px rgba(54, 42, 20, 0.09), 0 2px 5px rgba(54, 42, 20, 0.06);
+  --shadow-lg: 0 16px 40px rgba(40, 30, 14, 0.13), 0 4px 12px rgba(40, 30, 14, 0.07);
+  --shadow-xl: 0 28px 70px rgba(28, 21, 10, 0.20), 0 8px 20px rgba(28, 21, 10, 0.10);
+
+  /* golden glow — for sacred/active emphasis */
+  --glow-gold: 0 0 0 1px rgba(201,161,74,0.45), 0 8px 28px rgba(201,161,74,0.28);
+  --glow-soft: 0 8px 30px rgba(201,161,74,0.18);
+
+  /* inner shadow for sunken wells (lyric sheet) */
+  --shadow-inset: inset 0 1px 3px rgba(54, 42, 20, 0.08);
+
+  /* motion — calm, no bounce */
+  --ease-standard: cubic-bezier(0.32, 0.08, 0.24, 1); /* @kind other */
+  --ease-out:      cubic-bezier(0.16, 1, 0.3, 1);     /* @kind other */
+  --ease-in:       cubic-bezier(0.5, 0, 0.85, 0.3);   /* @kind other */
+  --dur-fast:   140ms; /* @kind other */
+  --dur-normal: 240ms; /* @kind other */
+  --dur-slow:   420ms; /* @kind other */
+  --dur-reveal: 700ms; /* @kind other */
+}

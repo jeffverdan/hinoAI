@@ -1,0 +1,111 @@
+<!-- @dsCard group="Creator" viewport="1040x720" name="Criador de hinos — fluxo completo" subtitle="História → estilo → gerando → revelação" -->
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hino.AI — Criar hino</title>
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font-sans);background:var(--wash-dawn);color:var(--text-body);min-height:100vh;}
+  .app{min-height:100vh;display:flex;flex-direction:column;}
+  .topbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;
+    padding:16px 28px;background:color-mix(in srgb,var(--ivory-50) 82%,transparent);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);}
+  .topbar__right{display:flex;align-items:center;gap:14px;}
+  .stage{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:40px 24px 64px;}
+  .panel{width:100%;max-width:600px;}
+  .sheet{background:var(--surface-card);border:1px solid var(--border);border-radius:var(--radius-xl);
+    box-shadow:var(--shadow-lg);padding:38px 38px 34px;}
+  .fade{opacity:1;}
+  @media (prefers-reduced-motion: no-preference){
+    .fade{animation:hino-fade var(--dur-reveal) var(--ease-out);}
+  }
+  @keyframes hino-fade{from{transform:translateY(10px);}to{transform:none;}}
+  @keyframes hino-pulse-k{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.06);opacity:.86;}}
+  .hino-pulse{animation:hino-pulse-k 1800ms var(--ease-standard) infinite;}
+  @media (prefers-reduced-motion: reduce){.fade,.hino-pulse{animation:none;}}
+  .plan{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--text-muted);
+    padding:6px 12px;border-radius:var(--radius-pill);border:1px solid var(--border);background:var(--surface-card);}
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<script type="text/babel" src="StoryStep.jsx"></script>
+<script type="text/babel" src="StyleStep.jsx"></script>
+<script type="text/babel" src="GeneratingStep.jsx"></script>
+<script type="text/babel" src="RevealStep.jsx"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { Logo, Avatar, Badge } = window.HinoAIDesignSystem_121ee1;
+const { useState, useEffect, useRef } = React;
+
+function App(){
+  const [step, setStep] = useState('story'); // story | style | generating | reveal
+  const [story, setStory] = useState('Perdi meu emprego em 2024 e passei meses em oração. Hoje sou grato: Deus abriu uma porta melhor do que eu sonhava.');
+  const [themes, setThemes] = useState(['Gratidão','Esperança']);
+  const [style, setStyle] = useState('trad');
+  const [tone, setTone] = useState('Inspirador');
+  const [video, setVideo] = useState(true);
+  const [progress, setProgress] = useState(0);
+  const [playing, setPlaying] = useState(true);
+  const timer = useRef(null);
+
+  const toggleTheme = (t) => setThemes(ts => ts.includes(t) ? ts.filter(x=>x!==t) : [...ts, t]);
+
+  useEffect(() => {
+    if (step !== 'generating') return;
+    setProgress(0);
+    timer.current = setInterval(() => {
+      setProgress(p => {
+        if (p >= 100) { clearInterval(timer.current); setTimeout(()=>setStep('reveal'), 500); return 100; }
+        return Math.min(100, p + 4);
+      });
+    }, 130);
+    return () => clearInterval(timer.current);
+  }, [step]);
+
+  const stage = progress < 25 ? 0 : progress < 55 ? 1 : progress < 85 ? 2 : 3;
+
+  return (
+    <div className="app">
+      <header className="topbar">
+        <Logo size={34} />
+        <div className="topbar__right">
+          <span className="plan"><span style={{width:7,height:7,borderRadius:'50%',background:'var(--accent)'}}></span>Plano Ministério</span>
+          <Avatar name="Ana Lima" />
+        </div>
+      </header>
+      <main className="stage">
+        <div className="panel">
+          {step === 'story' && (
+            <div className="sheet fade" key="story">
+              <StoryStep story={story} setStory={setStory} themes={themes} toggleTheme={toggleTheme} onNext={()=>setStep('style')} />
+            </div>
+          )}
+          {step === 'style' && (
+            <div className="sheet fade" key="style">
+              <StyleStep style={style} setStyle={setStyle} tone={tone} setTone={setTone} video={video} setVideo={setVideo}
+                onBack={()=>setStep('story')} onCreate={()=>setStep('generating')} />
+            </div>
+          )}
+          {step === 'generating' && (
+            <div className="sheet fade" key="gen">
+              <GeneratingStep progress={progress} stage={stage} />
+            </div>
+          )}
+          {step === 'reveal' && (
+            <div className="fade" key="reveal">
+              <RevealStep title="Uma porta melhor" themes={themes} playing={playing} setPlaying={setPlaying}
+                onRestart={()=>{ setStep('story'); }} onOpenPlayer={()=>{ window.location.href='../player/index.html'; }} />
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body></html>

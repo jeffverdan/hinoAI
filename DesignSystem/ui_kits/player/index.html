@@ -1,0 +1,126 @@
+<!-- @dsCard group="Player" viewport="1040x720" name="Player do hino — modo santuário" subtitle="Letra + cifra + áudio no tema escuro" -->
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hino.AI — Player</title>
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font-sans);min-height:100vh;}
+  .player{min-height:100vh;background:var(--wash-sanctuary);color:var(--text-body);display:flex;flex-direction:column;position:relative;}
+  .halo{position:absolute;left:50%;top:-8%;width:120%;height:60%;transform:translateX(-50%);background:var(--wash-halo);pointer-events:none;}
+  .pbar{position:relative;display:flex;align-items:center;justify-content:space-between;padding:18px 28px;border-bottom:1px solid var(--border);}
+  .pbar__r{display:flex;gap:10px;align-items:center;}
+  .scroll{position:relative;flex:1;overflow:auto;display:flex;justify-content:center;padding:30px 24px 150px;}
+  .col{width:100%;max-width:560px;}
+  .titlewrap{text-align:center;margin-bottom:26px;}
+  .htitle{font-family:var(--font-display);font-weight:600;font-size:46px;line-height:1.1;letter-spacing:-0.02em;color:var(--text-heading);margin:0 0 14px;}
+  .themes{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+  .tabs{display:inline-flex;gap:4px;padding:4px;background:var(--surface-card);border:1px solid var(--border);border-radius:var(--radius-pill);margin:0 auto 22px;}
+  .tabwrap{display:flex;justify-content:center;}
+  .tab{font-family:var(--font-sans);font-size:14px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--text-muted);padding:8px 20px;border-radius:var(--radius-pill);}
+  .tab--on{background:var(--accent);color:var(--text-on-gold);}
+  .sheet{background:var(--surface-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px 30px;}
+  .verse{font-family:var(--font-serif);font-size:20px;line-height:1.85;color:var(--text-body);}
+  .verse .sec{font-family:var(--font-sans);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:18px 0 8px;}
+  .verse .sec:first-child{margin-top:0;}
+  .transport{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:16px 28px;
+    background:color-mix(in srgb,var(--night-900) 72%,transparent);backdrop-filter:blur(14px);border-top:1px solid var(--border);
+    display:flex;align-items:center;gap:20px;}
+  .progress{flex:1;display:flex;flex-direction:column;gap:7px;}
+  .ptrack{height:5px;border-radius:var(--radius-pill);background:rgba(255,255,255,.14);overflow:hidden;}
+  .pfill{height:100%;background:var(--wash-gold);border-radius:var(--radius-pill);}
+  .ptime{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:11px;color:var(--text-faint);}
+  .tactions{display:flex;gap:8px;}
+  @media (max-width:720px){.htitle{font-size:34px;}.tactions{display:none;}}
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { Logo, IconButton, Button, Badge, WaveBars, ChordSheet } = window.HinoAIDesignSystem_121ee1;
+const { useState } = React;
+
+const LYRICS = [
+  { sec: 'Estrofe 1', lines: ['Quando a porta se fechou, eu chorei,', 'sem saber qual caminho seguir;', 'mas na sombra do vale escutei', 'uma voz me chamando a subir.'] },
+  { sec: 'Refrão', lines: ['Cantai ao Senhor um cântico novo,', 'pois maravilhas Ele fez por mim;', 'a porta melhor Ele abriu para o povo', 'que confia n\u2019Ele até o fim.'] },
+  { sec: 'Estrofe 2', lines: ['Hoje sou grato por cada manhã,', 'pela graça que me sustentou;', 'o que era perda virou nova canção,', 'meu Senhor tudo restaurou.'] },
+];
+const CIFRA = [
+  { chords: 'G              C       D', text: 'Cantai ao Senhor um cântico' },
+  { chords: 'Em           C        G', text: 'novo, pois fez maravilhas;' },
+  { chords: 'C            G        D', text: 'a porta melhor Ele abriu' },
+  { chords: 'Em        C       D    G', text: 'para o povo que confia n\u2019Ele.' },
+];
+
+function App(){
+  const [playing, setPlaying] = useState(true);
+  const [tab, setTab] = useState('letra');
+  return (
+    <div className="player" data-theme="sanctuary">
+      <div className="halo"></div>
+      <header className="pbar">
+        <Logo variant="sanctuary" size={32} />
+        <div className="pbar__r">
+          <Badge tone="gold">Hino tradicional</Badge>
+          <IconButton icon="x" variant="outline" label="Fechar" onClick={()=>{ window.location.href='../creator/index.html'; }} />
+        </div>
+      </header>
+
+      <div className="scroll">
+        <div className="col">
+          <div className="titlewrap">
+            <h1 className="htitle">Uma porta melhor</h1>
+            <div className="themes">
+              <Badge tone="gold">Gratidão</Badge>
+              <Badge tone="gold">Esperança</Badge>
+              <Badge tone="neutral">Solene · 4 vozes</Badge>
+            </div>
+          </div>
+
+          <div className="tabwrap">
+            <div className="tabs">
+              <button className={'tab'+(tab==='letra'?' tab--on':'')} onClick={()=>setTab('letra')}>Letra</button>
+              <button className={'tab'+(tab==='cifra'?' tab--on':'')} onClick={()=>setTab('cifra')}>Cifra</button>
+            </div>
+          </div>
+
+          <div className="sheet">
+            {tab==='letra' ? (
+              <div className="verse">
+                {LYRICS.map((b,i)=>(
+                  <div key={i}>
+                    <div className="sec">{b.sec}</div>
+                    {b.lines.map((l,j)=>(<div key={j}>{l}</div>))}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <ChordSheet section="Refrão" lines={CIFRA} />
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="transport" data-theme="sanctuary">
+        <IconButton icon={playing?'pause':'play'} variant="solid" size="lg" label={playing?'Pausar':'Tocar'} onClick={()=>setPlaying(p=>!p)} />
+        <WaveBars playing={playing} bars={30} height={34} color="var(--gold-400)" />
+        <div className="progress">
+          <div className="ptrack"><div className="pfill" style={{width:'38%'}}></div></div>
+          <div className="ptime"><span>1:24</span><span>3:41</span></div>
+        </div>
+        <div className="tactions">
+          <IconButton icon="download" variant="outline" label="Baixar" />
+          <IconButton icon="share" variant="outline" label="Compartilhar" />
+          <IconButton icon="heart" variant="outline" label="Favoritar" />
+        </div>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body></html>

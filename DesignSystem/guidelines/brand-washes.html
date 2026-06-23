@@ -1,0 +1,19 @@
+<!-- @dsCard group="Brand" viewport="700x230" name="Gradient washes" subtitle="Dawn · sanctuary · gold · halo" -->
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body{margin:0;font-family:var(--font-sans);background:var(--bg-page);padding:22px 24px;color:var(--text-body);}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+  .w{height:78px;border-radius:var(--radius-md);box-shadow:var(--shadow-sm);position:relative;overflow:hidden;border:1px solid var(--border);}
+  .tk{position:absolute;left:10px;bottom:8px;font-family:var(--font-mono);font-size:11px;background:rgba(255,255,255,0.7);padding:2px 7px;border-radius:var(--radius-pill);}
+  .tkd{position:absolute;left:10px;bottom:8px;font-family:var(--font-mono);font-size:11px;color:var(--gold-300);}
+  .halo{background:var(--night-900);}
+</style></head>
+<body>
+  <div class="grid">
+    <div class="w" style="background:var(--wash-dawn)"><span class="tk">--wash-dawn</span></div>
+    <div class="w" style="background:var(--wash-sanctuary)"><span class="tkd">--wash-sanctuary</span></div>
+    <div class="w" style="background:var(--wash-gold)"><span class="tk">--wash-gold</span></div>
+    <div class="w halo"><div style="position:absolute;inset:0;background:var(--wash-halo)"></div><span class="tkd">--wash-halo</span></div>
+  </div>
+</body></html>
