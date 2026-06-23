@@ -82,7 +82,7 @@ export function StyleStep({ style, setStyle, tone, setTone, video, setVideo, onB
       </div>
 
       {/* Vídeo para redes — placeholder Fase 3 */}
-      <div style={{
+      {/* <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
         padding: '16px 18px', background: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)',
         border: '1px solid var(--border)', opacity: 0.6,
@@ -100,9 +100,9 @@ export function StyleStep({ style, setStyle, tone, setTone, video, setVideo, onB
           <input type="checkbox" checked={video} onChange={(e) => setVideo(e.target.checked)} disabled />
           <span className="hino-switch__track" />
         </label>
-      </div>
+      </div> */}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, paddingTop: 2 }}>
+      <div className="hino-style-actions">
         <Button variant="ghost" iconLeft="chevronLeft" onClick={onBack}>Voltar</Button>
         <Button size="lg" iconLeft="sparkles" onClick={onCreate} disabled={!style}>
           Criar meu hino

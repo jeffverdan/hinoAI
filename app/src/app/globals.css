@@ -451,6 +451,20 @@ body { margin: 0; min-height: 100vh; }
   .hino-audio-chip__dot { animation: none; }
 }
 
+/* ── Ações do StyleStep (Voltar / Criar) ──────────────────── */
+.hino-style-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-top: 2px;
+}
+@media (max-width: 640px) {
+  /* Empilha: "Criar" em cima (largura total), "Voltar" embaixo */
+  .hino-style-actions { flex-direction: column-reverse; align-items: stretch; }
+  .hino-style-actions .hino-btn { width: 100%; justify-content: center; }
+}
+
 /* ── Header mais compacto no mobile ───────────────────────── */
 @media (max-width: 640px) {
   .hino-main { padding-top: 18px !important; }
