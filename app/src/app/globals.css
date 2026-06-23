@@ -348,7 +348,7 @@ body { margin: 0; min-height: 100vh; }
   background: var(--surface-card);
   border: 1.5px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 18px;
+  padding: 14px 16px;
   box-shadow: var(--shadow-xs);
   transition: border-color var(--dur-fast) var(--ease-standard),
               box-shadow var(--dur-fast) var(--ease-standard),
@@ -365,10 +365,10 @@ body { margin: 0; min-height: 100vh; }
   background: var(--accent-soft); color: var(--accent-ink);
 }
 .hino-radiocard[aria-pressed="true"] .hino-radiocard__icon { background: var(--accent); color: var(--text-on-gold); }
-.hino-radiocard__title { font-family: var(--font-display); font-weight: 600; font-size: 18px; color: var(--text-heading); line-height: 1.15; margin: 0 0 3px; display: block; }
+.hino-radiocard__title { font-family: var(--font-display); font-weight: 600; font-size: 15px; color: var(--text-heading); line-height: 1.15; margin: 0 0 3px; display: block; }
 .hino-radiocard__desc  { font-size: 13.5px; color: var(--text-muted); line-height: 1.45; margin: 0; display: block; }
 .hino-radiocard__tick  {
-  position: absolute; top: 14px; right: 14px;
+  position: absolute; top: 14px; right: 16px;
   width: 22px; height: 22px; border-radius: 50%;
   border: 1.5px solid var(--border-strong);
   display: flex; align-items: center; justify-content: center;
@@ -378,6 +378,10 @@ body { margin: 0; min-height: 100vh; }
 .hino-radiocard[aria-pressed="true"] .hino-radiocard__tick { background: var(--accent); border-color: var(--accent); }
 .hino-radiocard__tick svg { opacity: 0; transition: opacity var(--dur-fast); }
 .hino-radiocard[aria-pressed="true"] .hino-radiocard__tick svg { opacity: 1; }
+
+/* ── StyleStep grid ──────────────────────────────────────── */
+.hino-style-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 500px) { .hino-style-grid { grid-template-columns: 1fr; } }
 
 /* ── ScriptureQuote ───────────────────────────────────────── */
 .hino-scripture { font-family: var(--font-serif); position: relative; }
@@ -424,6 +428,59 @@ body { margin: 0; min-height: 100vh; }
   to   { opacity: 1; transform: translateY(0); }
 }
 .hino-reveal { animation: hino-reveal-in var(--dur-reveal) var(--ease-out) both; }
+
+/* ── Preview (durante geração do áudio) ───────────────────── */
+@keyframes hino-preview-in {
+  from { opacity: 0; transform: translateY(10px); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+}
+.hino-preview-item {
+  opacity: 0;
+  animation: hino-preview-in 620ms var(--ease-out) both;
+}
+@keyframes hino-shimmer {
+  0%   { background-position: -160% 0; }
+  100% { background-position:  260% 0; }
+}
+.hino-audio-chip__dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--accent); animation: hino-pulse 1.4s var(--ease-standard) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hino-preview-item { animation: none; opacity: 1; }
+  .hino-audio-chip__dot { animation: none; }
+}
+
+/* ── Header mais compacto no mobile ───────────────────────── */
+@media (max-width: 640px) {
+  .hino-main { padding-top: 18px !important; }
+  .hino-app-header { margin-bottom: 18px !important; }
+  .footer-vers { margin-top: 18px !important; }
+}
+
+/* ── CTA "Continuar" — fixo (sticky) no mobile ────────────── */
+.hino-story-cta {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  padding-top: 4px;
+}
+@media (max-width: 640px) {
+  .hino-story-cta {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    margin: 0 -44px -40px;          /* sangra até as bordas do card */
+    padding: 14px 24px calc(16px + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(to top,
+      var(--surface-card) 72%,
+      color-mix(in srgb, var(--surface-card) 0%, transparent));
+    border-bottom-left-radius: var(--radius-xl);
+    border-bottom-right-radius: var(--radius-xl);
+  }
+  .hino-story-cta .hino-btn { width: 100%; justify-content: center; }
+}
 
 /* ── Switch ───────────────────────────────────────────────── */
 .hino-switch { position: relative; display: inline-block; width: 44px; height: 26px; }

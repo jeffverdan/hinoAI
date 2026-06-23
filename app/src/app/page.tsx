@@ -3,9 +3,12 @@ import { useState } from 'react';
 import { StoryStep }      from '@/components/steps/StoryStep';
 import { StyleStep }      from '@/components/steps/StyleStep';
 import { GeneratingStep } from '@/components/steps/GeneratingStep';
+import type { HymnPreview } from '@/components/steps/GeneratingStep';
 import { RevealStep }     from '@/components/steps/RevealStep';
+import type { AlignedWord } from '@/components/steps/RevealStep';
 
 type Step = 'story' | 'style' | 'generating' | 'reveal';
+type GenPhase = 'lyrics' | 'audio';
 
 interface HymnResult {
   title: string;
@@ -15,6 +18,7 @@ interface HymnResult {
   theme: string;
   themes: string[];
   audioUrl?: string;
+  alignedWords?: AlignedWord[] | null;
 }
 
 const INITIAL: HymnResult = { title: '', lyrics: '', chords: '', verses: [], theme: '', themes: [] };
@@ -27,7 +31,10 @@ export default function Home() {
   const [tone, setTone]         = useState('Alegre');
   const [video, setVideo]       = useState(false);
   const [progress, setProgress] = useState(0);
+  const [phase, setPhase]       = useState<GenPhase>('lyrics');
+  const [preview, setPreview]   = useState<HymnPreview | null>(null);
   const [hymn, setHymn]         = useState<HymnResult>(INITIAL);
+  const [hymnId, setHymnId]     = useState<string | null>(null);
   const [error, setError]       = useState<string | null>(null);
 
   const toggleTheme = (t: string) =>
@@ -36,15 +43,20 @@ export default function Home() {
   const handleCreate = async () => {
     setError(null);
     setProgress(0);
+    setPreview(null);
+    setPhase('lyrics');
     setStep('generating');
 
-    // Progresso simulado até 85% enquanto aguarda a API
-    const timer = setInterval(() => {
+    // Fase 1 — letra (Claude): progresso simulado até 55%
+    let lyricsTimer: ReturnType<typeof setInterval> | null = setInterval(() => {
       setProgress((p) => {
-        if (p >= 85) { clearInterval(timer); return 85; }
-        return Math.min(p + Math.random() * 6, 85);
+        if (p >= 55) { if (lyricsTimer) clearInterval(lyricsTimer); return 55; }
+        return Math.min(p + Math.random() * 6, 55);
       });
-    }, 800);
+    }, 700);
+
+    // Fase 2 — áudio (Suno): avança devagar de 55% até 97% ao longo de ~5min
+    let audioTimer: ReturnType<typeof setInterval> | null = null;
 
     try {
       // 1. Gerar letra com Claude
@@ -56,6 +68,7 @@ export default function Home() {
 
       const lyricsData = await lyricsRes.json() as {
         hymn?: { title: string; lyrics: string; chords: string; verses: string[]; theme: string };
+        id?: string | null;
         error?: string;
       };
 
@@ -63,31 +76,53 @@ export default function Home() {
         throw new Error(lyricsData.error || 'Erro ao gerar a letra.');
       }
 
-      setProgress(70);
+      const newHymnId = lyricsData.id ?? null;
+      setHymnId(newHymnId);
+
+      // Letra pronta → mostra a prévia e entra na fase de áudio
+      if (lyricsTimer) { clearInterval(lyricsTimer); lyricsTimer = null; }
+      setPreview({
+        title:  lyricsData.hymn.title,
+        lyrics: lyricsData.hymn.lyrics,
+        chords: lyricsData.hymn.chords,
+        themes,
+      });
+      setPhase('audio');
+      setProgress(58);
+
+      // Sobe ~0.13%/tick (≈ de 58% a 97% em ~5min)
+      audioTimer = setInterval(() => {
+        setProgress((p) => (p >= 97 ? 97 : Math.min(p + 0.13, 97)));
+      }, 1000);
 
       // 2. Gerar áudio com Suno (não bloqueia se falhar)
       let audioUrl: string | null = null;
+      let alignedWords: AlignedWord[] | null = null;
       try {
         const audioRes  = await fetch('/api/generate-audio', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title: lyricsData.hymn.title, lyrics: lyricsData.hymn.lyrics, style, tone }),
+          body: JSON.stringify({ title: lyricsData.hymn.title, lyrics: lyricsData.hymn.lyrics, style, tone, hymnId: newHymnId }),
         });
-        const audioData = await audioRes.json() as { audioUrl?: string | null };
-        audioUrl = audioData.audioUrl ?? null;
+        const audioData = await audioRes.json() as { audioUrl?: string | null; alignedWords?: AlignedWord[] | null };
+        audioUrl     = audioData.audioUrl ?? null;
+        alignedWords = audioData.alignedWords ?? null;
       } catch {
         console.warn('Áudio indisponível — continuando sem ele.');
       }
 
-      clearInterval(timer);
+      if (audioTimer) { clearInterval(audioTimer); audioTimer = null; }
       setProgress(100);
-      setHymn({ ...lyricsData.hymn, themes, audioUrl: audioUrl ?? undefined });
+      setHymn({ ...lyricsData.hymn, themes, audioUrl: audioUrl ?? undefined, alignedWords });
 
       await new Promise((r) => setTimeout(r, 600));
       setStep('reveal');
     } catch (err) {
-      clearInterval(timer);
+      if (lyricsTimer) clearInterval(lyricsTimer);
+      if (audioTimer) clearInterval(audioTimer);
       setProgress(0);
+      setPreview(null);
+      setPhase('lyrics');
       setError(err instanceof Error ? err.message : 'Algo não saiu como esperávamos. Vamos tentar de novo?');
       setStep('style');
     }
@@ -97,22 +132,23 @@ export default function Home() {
     setStep('story'); setStory(''); setThemes([]);
     setStyle(''); setTone('Alegre'); setVideo(false);
     setHymn(INITIAL); setError(null); setProgress(0);
+    setPreview(null); setPhase('lyrics'); setHymnId(null);
   };
 
   const isGenerating = step === 'generating';
   const isReveal     = step === 'reveal';
 
   return (
-    <main style={{
+    <main className="hino-main" style={{
       minHeight: '100vh',
       background: 'var(--wash-dawn)',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      padding: '40px var(--gutter) 80px',
+      padding: '32px var(--gutter) 32px',
     }}>
       {/* Header */}
-      <header style={{
+      <header className="hino-app-header" style={{
         width: '100%', maxWidth: 'var(--container-lg)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         marginBottom: 56,
@@ -134,7 +170,7 @@ export default function Home() {
       {/* Card */}
       <div style={{
         width: '100%',
-        maxWidth: isReveal ? 'var(--container-md)' : 'var(--container-sm)',
+        maxWidth: isReveal ? 'var(--container-md)' : step === 'style' ? '558px' : 'var(--container-sm)',
         background: isGenerating ? 'transparent' : 'var(--surface-card)',
         borderRadius: 'var(--radius-xl)',
         boxShadow: isGenerating ? 'none' : 'var(--shadow-lg)',
@@ -169,12 +205,14 @@ export default function Home() {
             onCreate={handleCreate}
           />
         )}
-        {step === 'generating' && <GeneratingStep progress={Math.round(progress)} />}
-        {step === 'reveal'     && <RevealStep hymn={hymn} onRestart={handleRestart} />}
+        {step === 'generating' && (
+          <GeneratingStep progress={Math.round(progress)} phase={phase} preview={preview} />
+        )}
+        {step === 'reveal'     && <RevealStep hymn={hymn} onRestart={handleRestart} shareId={hymnId ?? undefined} />}
       </div>
 
-      <footer style={{ marginTop: 48, fontSize: 12, color: 'var(--text-faint)', textAlign: 'center' }}>
-        <em>"Cantai ao Senhor um cântico novo." — Salmos 96:1</em>
+      <footer className='footer-vers' style={{ marginTop: 48, fontSize: 12, color: 'var(--text-faint)', textAlign: 'center' }}>
+        <em>&quot;Cantai ao Senhor um cântico novo.&quot; — Salmos 96:1</em>
       </footer>
     </main>
   );

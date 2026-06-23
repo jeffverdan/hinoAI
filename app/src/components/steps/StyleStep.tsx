@@ -41,7 +41,7 @@ export function StyleStep({ style, setStyle, tone, setTone, video, setVideo, onB
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+      <div className="hino-style-grid">
         {STYLES.map((s) => (
           <RadioCard
             key={s.id}

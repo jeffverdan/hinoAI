@@ -13,7 +13,8 @@
 - [x] Criar projeto Next.js com TypeScript e Tailwind CSS
 - [x] Configurar variáveis de ambiente (`.env.local` + `.env.example`)
 - [x] Configurar Design System (tokens CSS, componentes portados para TypeScript)
-- [ ] Configurar Supabase (projeto + tabelas iniciais)
+- [x] Configurar Supabase (schema SQL definido em `supabase/migrations/001_initial_schema.sql`)
+- [x] Rodar migration no Supabase (SQL Editor → colar e executar)
 - [ ] Configurar deploy na Vercel (CI/CD automático via GitHub)
 
 ### Formulário de entrada
@@ -38,9 +39,9 @@
 ### Geração de áudio (Suno AI)
 - [x] Criar rota `POST /api/generate-audio`
 - [x] Mapear estilo/tom para tags do Suno
-- [x] Polling de status até áudio pronto (até 90s)
+- [x] Polling de status até áudio pronto (até 300s) 
 - [x] Tratamento de timeout e erros (não bloqueia o fluxo)
-- [ ] Armazenar URL do áudio no Supabase após geração
+- [x] Armazenar URL do áudio no Supabase após geração
 
 ### Página de resultado
 - [x] Tela RevealStep com tema Sanctuary (dark) ao revelar o hino
@@ -51,12 +52,12 @@
 - [x] Botão de download da letra (`.txt`)
 - [x] Botão "Compartilhar" (Web Share API / clipboard)
 - [x] Botão "Criar outro hino"
-- [ ] Botão de download do áudio (MP3)
-- [ ] Botão de download da letra (PDF formatado)
+- [x] Botão de download do áudio (MP3)
+- [x] Botão de download da letra (PDF formatado)
 
 ### Banco de dados (MVP)
 - [x] Schema da tabela `hymns` definido em `supabase.ts`
-- [ ] Criar tabela `hymns` no Supabase (migration)
+- [x] Criar tabela `hymns` no Supabase (migration)
 - [ ] Índice por `created_at`
 
 ### Deploy & QA
@@ -87,23 +88,33 @@
 - [ ] Deletar hino
 
 ### Planos e limites
-- [ ] Definir lógica de cotas (1 gratuito, avulso por crédito, ministério ilimitado)
-- [ ] Tabela `user_credits` e `subscriptions` no Supabase
+- [ ] Definir lógica de cotas: 1 gratuito/mês → bloqueio → CTA de compra de pack
+- [ ] Tabela `user_credits` no Supabase (créditos = hinos restantes no pack)
+- [ ] Tabela `purchases` no Supabase (histórico de compras)
 - [ ] Verificação de créditos antes de cada geração
-- [ ] Bloqueio com CTA de upgrade quando sem crédito
+- [ ] Resetar 1 crédito gratuito no início de cada mês (cron ou trigger)
+- [ ] Bloqueio com CTA de compra quando sem crédito
 
 ### Pagamentos (Mercado Pago)
 - [ ] Configurar conta Mercado Pago e credenciais
-- [ ] Fluxo de compra avulsa (R$ 14,90 por hino)
-- [ ] Fluxo de assinatura mensal — Plano Ministério (R$ 39,90/mês)
+- [ ] Fluxo de compra de pack — R$ 19,90 por 5 hinos
+- [ ] Aplicar preço promocional R$ 9,90 nas 3 primeiras compras do usuário
 - [ ] Webhook de confirmação de pagamento
-- [ ] Adicionar crédito ao usuário após pagamento confirmado
-- [ ] Página de histórico de pagamentos
+- [ ] Adicionar 5 créditos ao usuário após pagamento confirmado
+- [ ] Página de saldo de créditos e histórico de compras
+
+### Evolução futura — Assinaturas (pós-validação)
+> Implementar apenas após o modelo de pack estar operacional e com recompra recorrente comprovada.
+- [ ] Plano Starter (~R$ 19,90/mês — 10 hinos/mês)
+- [ ] Plano Ministério (~R$ 39,90/mês — ilimitado)
+- [ ] Tabela `subscriptions` no Supabase
+- [ ] Webhook de renovação mensal (Mercado Pago)
+- [ ] Upgrade/downgrade de plano pelo dashboard
 
 ### Notificações
 - [ ] Email de boas-vindas no cadastro
 - [ ] Email com o hino gerado (letra + link)
-- [ ] Email de cobrança/renovação
+- [ ] Email de confirmação de compra de pack
 
 ---
 
@@ -143,4 +154,4 @@
 
 ---
 
-*Atualizado em: 23/06/2026*
+*Atualizado em: 23/06/2026 — monetização migrada para modelo de pack (5 hinos / R$19,90)*

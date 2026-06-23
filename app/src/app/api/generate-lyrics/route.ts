@@ -20,8 +20,9 @@ export async function POST(req: NextRequest) {
     }
 
     const message = await anthropic.messages.create({
-      model: 'claude-opus-4-8',
+      model: 'claude-haiku-4-5', // claude-sonnet-4-6
       max_tokens: 2048,
+      temperature: 1, // máxima variação criativa
       system: HYMN_SYSTEM_PROMPT,
       messages: [
         {
@@ -48,10 +49,11 @@ export async function POST(req: NextRequest) {
       theme: string;
     };
 
-    // Persiste no Supabase (best effort — não bloqueia a resposta)
+    // Persiste no Supabase e captura o id para gerar o link permanente
+    let hymnId: string | null = null;
     try {
       const db = createServerClient();
-      await db.from('hymns').insert({
+      const { data, error } = await db.from('hymns').insert({
         story,
         title:     hymn.title,
         lyrics:    hymn.lyrics,
@@ -63,12 +65,15 @@ export async function POST(req: NextRequest) {
         tone,
         audio_url: null,
         user_id:   null,
-      });
+      }).select('id').single();
+
+      if (error) console.warn('Supabase insert failed (non-fatal):', error.message);
+      hymnId = data?.id ?? null;
     } catch (dbErr) {
       console.warn('Supabase insert failed (non-fatal):', dbErr);
     }
 
-    return NextResponse.json({ hymn });
+    return NextResponse.json({ hymn, id: hymnId });
   } catch (err: unknown) {
     console.error('generate-lyrics error:', err);
     const message = err instanceof Error ? err.message : 'Erro interno';

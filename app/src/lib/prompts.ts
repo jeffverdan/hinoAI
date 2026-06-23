@@ -12,6 +12,13 @@ DIRETRIZES DO HINO:
 - Letra deve ser cantável: sílabas contadas, ritmo natural, frases que "respiram"
 - O testemunho deve inspirar a letra, mas o hino fala à congregação em geral
 
+CRIATIVIDADE E ORIGINALIDADE (muito importante):
+- Cada hino deve ser ÚNICO. Mesmo a partir do mesmo testemunho, explore ângulos, metáforas e imagens diferentes a cada criação.
+- Use imagens bíblicas variadas (luz e alvorada, água viva, sementeira e colheita, refúgio e rocha, mar e tempestade, fogo que refina, jornada e caminho, cordeiro, videira, etc.) — sem repetir sempre as mesmas.
+- Evite clichês e frases prontas de hinário ("aleluia, glória" genérico); busque expressões frescas, porém reverentes e fiéis às Escrituras.
+- Varie a abertura: comece ora por uma cena, ora por uma oração, ora por uma declaração de fé, ora por uma pergunta retórica.
+- Mantenha SEMPRE a linguagem gospel/cristã/bíblica e a sã doutrina — criatividade nunca às custas da reverência.
+
 CIFRA:
 - Tom: Dó maior (C) ou Lá menor (Am) como padrão, a menos que outro seja mais natural
 - Incluir acordes no início de cada linha ou compasso relevante
@@ -34,6 +41,37 @@ Retorne APENAS um JSON válido, sem texto adicional antes ou depois. Formato exa
 }
 `;
 
+// Paletas usadas para variar a inspiração a cada geração (mantêm o registro bíblico)
+const IMAGE_PALETTES = [
+  'luz, alvorada e o nascer do sol',
+  'água viva, fonte e o rio que sacia',
+  'sementeira, colheita e frutos do Espírito',
+  'rocha, refúgio e fortaleza',
+  'mar, tempestade e o porto seguro',
+  'fogo que refina e purifica',
+  'caminho, jornada e os passos guiados',
+  'pastor, ovelhas e o cuidado de Deus',
+  'videira, ramos e a comunhão',
+  'aurora da esperança e a segunda vinda',
+  'deserto, maná e o sustento diário',
+  'cântico novo, harpa e adoração',
+];
+
+const OPENING_ANGLES = [
+  'comece com uma cena concreta do testemunho',
+  'comece como uma oração dirigida a Deus',
+  'comece com uma declaração de fé',
+  'comece com uma pergunta retórica que conduz ao louvor',
+  'comece evocando um momento de gratidão',
+  'comece contrastando a luta passada com a vitória em Cristo',
+];
+
+const RHYME_SCHEMES = ['ABAB', 'AABB'];
+
+function pick<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
 export function buildHymnUserPrompt({
   story,
   style,
@@ -45,6 +83,12 @@ export function buildHymnUserPrompt({
   tone: string;
   themes: string[];
 }) {
+  // Semente criativa: garante variação mesmo com o mesmo testemunho
+  const seed       = Math.random().toString(36).slice(2, 10);
+  const palette    = pick(IMAGE_PALETTES);
+  const opening    = pick(OPENING_ANGLES);
+  const rhyme      = pick(RHYME_SCHEMES);
+
   return `
 TESTEMUNHO DO USUÁRIO:
 "${story}"
@@ -53,7 +97,13 @@ ESTILO MUSICAL DESEJADO: ${style}
 TOM EMOCIONAL: ${tone}
 TEMAS IDENTIFICADOS: ${themes.length > 0 ? themes.join(', ') : 'Nenhum selecionado — interprete a partir do testemunho'}
 
-Crie um hino adventista personalizado baseado nesse testemunho. O hino deve capturar a essência da experiência de fé vivida, transformando-a em louvor congregacional.
+ORIENTAÇÃO CRIATIVA DESTA GERAÇÃO (semente ${seed} — use para criar algo novo e diferente de versões anteriores):
+- Imagens bíblicas a explorar como inspiração principal: ${palette}.
+- Abertura do hino: ${opening}.
+- Esquema de rima preferencial: ${rhyme}.
+- Busque um título e metáforas inéditos; não repita formulações comuns de hinário.
+
+Crie um hino adventista personalizado baseado nesse testemunho. O hino deve capturar a essência da experiência de fé vivida, transformando-a em louvor congregacional — original, reverente e fiel às Escrituras.
 `.trim();
 }
 

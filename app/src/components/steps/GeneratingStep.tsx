@@ -12,17 +12,30 @@ const STAGES = [
   'Gravando a voz…',
 ];
 
-interface GeneratingStepProps {
-  progress: number;
+export interface HymnPreview {
+  title:  string;
+  lyrics: string;
+  chords: string;
+  themes?: string[];
 }
 
-export function GeneratingStep({ progress }: GeneratingStepProps) {
+interface GeneratingStepProps {
+  progress: number;
+  /** 'lyrics' = aguardando a Claude · 'audio' = letra pronta, gerando o áudio */
+  phase?: 'lyrics' | 'audio';
+  /** Prévia já gerada pela Claude, exibida enquanto o áudio é produzido */
+  preview?: HymnPreview | null;
+}
+
+export function GeneratingStep({ progress, phase = 'lyrics', preview = null }: GeneratingStepProps) {
   const [stageIdx, setStageIdx] = useState(0);
 
   useEffect(() => {
     const mapped = Math.floor((progress / 100) * (STAGES.length - 1));
     setStageIdx(Math.min(mapped, STAGES.length - 1));
   }, [progress]);
+
+  const showPreview = phase === 'audio' && !!preview;
 
   return (
     <div style={{
@@ -45,10 +58,10 @@ export function GeneratingStep({ progress }: GeneratingStepProps) {
           fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 34,
           lineHeight: 1.15, color: 'var(--text-heading)', margin: '0 0 10px',
         }}>
-          Compondo seu hino
+          {showPreview ? 'Sua letra está pronta' : 'Compondo seu hino'}
         </h1>
         <p style={{ fontSize: 16, color: 'var(--text-muted)', margin: 0, minHeight: 22 }}>
-          {STAGES[stageIdx]}
+          {showPreview ? 'Agora estamos gravando a voz e a melodia…' : STAGES[stageIdx]}
         </p>
       </div>
 
@@ -64,7 +77,7 @@ export function GeneratingStep({ progress }: GeneratingStepProps) {
             width: `${progress}%`,
             background: 'var(--wash-gold)',
             borderRadius: 'var(--radius-pill)',
-            transition: 'width 400ms var(--ease-out)',
+            transition: 'width 600ms var(--ease-out)',
           }} />
         </div>
         <div style={{
@@ -75,14 +88,129 @@ export function GeneratingStep({ progress }: GeneratingStepProps) {
         </div>
       </div>
 
-      <div style={{ paddingTop: 8 }}>
-        <ScriptureQuote
-          verse="Cantai ao Senhor um cântico novo."
-          reference="Salmos 96:1"
-          size="sm"
-          align="center"
-        />
+      {/* Prévia do que a Claude já gerou */}
+      {showPreview && preview && <PreviewCard preview={preview} />}
+
+      {!showPreview && (
+        <div style={{ paddingTop: 8 }}>
+          {/* <ScriptureQuote
+            verse="Cantai ao Senhor um cântico novo."
+            reference="Salmos 96:1"
+            size="sm"
+            align="center"
+          /> */}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PreviewCard({ preview }: { preview: HymnPreview }) {
+  const lyricLines = preview.lyrics
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+    // .slice(0, 4);
+
+  const chordLine = preview.chords
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)[0] ?? '';
+
+  return (
+    <div style={{
+      width: 'min(440px, 90vw)', textAlign: 'left',
+      background: 'var(--surface-card)', borderRadius: 'var(--radius-lg)',
+      border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)',
+      padding: '24px 26px', display: 'flex', flexDirection: 'column', gap: 16,
+    }}>
+      {/* Chip "gerando áudio" */}
+      <div
+        className="hino-preview-item"
+        style={{
+          alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: 8,
+          padding: '5px 12px', borderRadius: 'var(--radius-pill)',
+          background: 'var(--bg-subtle)', fontSize: 12, fontWeight: 600,
+          color: 'var(--text-muted)', letterSpacing: '.02em',
+          animationDelay: '40ms',
+        }}
+      >
+        <span className="hino-audio-chip__dot" />
+        Gerando o áudio
       </div>
+
+      {/* Título */}
+      <h2
+        className="hino-preview-item"
+        style={{
+          fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 26,
+          lineHeight: 1.12, letterSpacing: '-0.02em',
+          color: 'var(--text-heading)', margin: 0, animationDelay: '160ms',
+        }}
+      >
+        {preview.title}
+      </h2>
+
+      {/* Temas */}
+      {preview.themes && preview.themes.length > 0 && (
+        <div
+          className="hino-preview-item"
+          style={{ display: 'flex', gap: 6, flexWrap: 'wrap', animationDelay: '260ms' }}
+        >
+          {preview.themes.map((t) => (
+            <span key={t} style={{
+              fontSize: 11.5, fontWeight: 600, color: 'var(--accent-ink)',
+              background: 'var(--bg-subtle)', padding: '3px 10px',
+              borderRadius: 'var(--radius-pill)',
+            }}>
+              {t}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Trecho da letra — linha a linha */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 160, overflowY: 'auto', paddingRight: 4 }}>
+        {lyricLines.map((line, i) => (
+          <p
+            key={i}
+            className="hino-preview-item"
+            style={{
+              fontFamily: 'var(--font-serif)', fontStyle: 'italic',
+              fontSize: 16.5, lineHeight: 1.65, color: 'var(--text-body)',
+              margin: 0, animationDelay: `${360 + i * 140}ms`,
+            }}
+          >
+            {line}
+          </p>
+        ))}
+      </div>
+
+      {/* Cifra (primeira linha) */}
+      {chordLine && (
+        <div
+          className="hino-preview-item"
+          style={{
+            fontFamily: 'var(--font-mono)', fontSize: 13, lineHeight: 1.7,
+            background: 'var(--bg-sunken)', borderRadius: 'var(--radius-md)',
+            padding: '12px 16px', boxShadow: 'var(--shadow-inset)',
+            color: 'var(--text-muted)', overflowX: 'auto', whiteSpace: 'pre',
+            animationDelay: `${360 + lyricLines.length * 140}ms`,
+          }}
+        >
+          {chordLine}
+        </div>
+      )}
+
+      <p
+        className="hino-preview-item"
+        style={{
+          fontSize: 12.5, color: 'var(--text-faint)', margin: 0,
+          animationDelay: `${480 + lyricLines.length * 140}ms`,
+        }}
+      >
+        Isso pode levar alguns minutos — fique à vontade para ler enquanto a melodia é preparada.
+      </p>
     </div>
   );
 }

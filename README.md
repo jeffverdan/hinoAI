@@ -31,7 +31,7 @@ O HinoAI permite que qualquer pessoa conte sua história — uma superação, um
 
 | Fase | Escopo | Status |
 |------|--------|--------|
-| **MVP** | Formulário → Letra → Áudio → Download | 🔨 Em desenvolvimento |
+| **MVP** | Formulário → Letra → Áudio → Download | ✅ Código pronto — pendente deploy |
 | **Monetização** | Auth + planos + histórico de hinos | 🔜 Planejado |
 | **Viral** | Vídeos automáticos para Instagram/TikTok/WhatsApp | 🔜 Planejado |
 
@@ -54,9 +54,9 @@ O HinoAI permite que qualquer pessoa conte sua história — uma superação, um
 
 | Plano | Preço | Descrição |
 |-------|-------|-----------|
-| Gratuito | R$ 0 | 1 hino para experimentar |
-| Avulso | R$ 14,90 | Por hino gerado |
-| Ministério | R$ 39,90/mês | Ilimitado — para igrejas e líderes de louvor |
+| Gratuito | R$ 0 | 1 hino por mês |
+| Pack de 5 | R$ 19,90 | 5 hinos — válidos por 30 dias |
+| Promoção lançamento | R$ 9,90 | Pack de 5 nos 3 primeiros meses |
 
 ---
 

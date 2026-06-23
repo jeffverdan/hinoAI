@@ -3,7 +3,7 @@ import { Textarea }       from '@/components/ui/Textarea';
 import { Tag }            from '@/components/ui/Tag';
 import { Button }         from '@/components/ui/Button';
 import { StepDots }       from '@/components/ui/StepDots';
-import { ScriptureQuote } from '@/components/ui/ScriptureQuote';
+// import { ScriptureQuote } from '@/components/ui/ScriptureQuote';
 
 const THEMES = ['Gratidão', 'Esperança', 'Fé', 'Família', 'Cura', 'Segunda vinda', 'Perdão'];
 
@@ -28,23 +28,31 @@ export function StoryStep({ story, setStory, themes, toggleTheme, onNext }: Stor
           Conte sua história
         </h1>
         <p style={{ fontSize: 17, lineHeight: 1.55, color: 'var(--text-muted)', margin: 0, maxWidth: 460 }}>
-          Um momento de fé, uma superação, uma graça recebida. Nós transformamos em louvor.
+          Um momento de fé, uma superação, uma graça recebida, um pedido. Nós transformamos em louvor.
         </p>
       </div>
 
-      <Textarea
-        label="Seu testemunho"
-        placeholder="Perdi meu emprego em 2024, mas Deus abriu uma porta melhor…"
-        showCount
-        maxLength={600}
-        value={story}
-        onChange={(e) => setStory(e.target.value)}
-        rows={5}
-      />
+      <div>
+        
+        <Textarea
+          label="Conte com suas palavras"
+          placeholder="Ex.: Passei por um momento muito difícil, mas senti a presença de Deus me sustentando e fui renovado pela Sua graça…"
+          showCount
+          hint='mínimo de 12 caracteres'
+          maxLength={600}
+          value={story}
+          onChange={(e) => setStory(e.target.value)}
+          rows={5}
+        />
+        {/* <p style={{ fontSize: 12.5, color: 'var(--text-muted)', margin: '0 0 8px' }}>
+          mínimo de 12 caracteres.
+        </p> */}
+      </div>
 
       <div>
         <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-heading)', margin: '0 0 12px' }}>
-          Temas que aparecem na sua história
+          Temas que aparecem na sua história{' '}
+          <span style={{ fontWeight: 500, color: 'var(--text-faint)' }}>(opcional)</span>
         </p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
           {THEMES.map((t) => (
@@ -55,8 +63,7 @@ export function StoryStep({ story, setStory, themes, toggleTheme, onNext }: Stor
         </div>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, paddingTop: 4 }}>
-        {/* <ScriptureQuote verse="Cantai ao Senhor um cântico novo." reference="Salmos 96:1" size="sm" /> */}
+      <div className="hino-story-cta">
         <Button size="lg" iconRight="arrowRight" disabled={story.trim().length < 12} onClick={onNext}>
           Continuar
         </Button>
